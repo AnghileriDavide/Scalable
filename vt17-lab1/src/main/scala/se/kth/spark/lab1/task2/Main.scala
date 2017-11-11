@@ -7,6 +7,9 @@ import org.apache.spark.ml.Pipeline
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.SQLContext
+import org.apache.spark.ml.linalg.Vector
+import org.apache.spark.sql.Row
+
 
 object Main {
   def main(args: Array[String]) {
@@ -18,27 +21,33 @@ object Main {
     import sqlContext._
 
     val filePath = "src/main/resources/millionsong.txt"
-    val rawDF = ???
-
+    val rawDF = sc.textFile(filePath).toDF("string")
+    
     //Step1: tokenize each row
     val regexTokenizer = new RegexTokenizer()
-      .setInputCol(???)
-      .setOutputCol(???)
-      .setPattern(???)
-
+      .setInputCol("string")
+      .setOutputCol("Features")
+      .setPattern("\\,")
+      
     //Step2: transform with tokenizer and show 5 rows
-    ???
+    val wordsData = regexTokenizer.transform(rawDF).drop("string")
+    wordsData.show()
 
     //Step3: transform array of tokens to a vector of tokens (use our ArrayToVector)
-    val arr2Vect = new Array2Vector()
-    ???
-
+    val arr2Vect = new Array2Vector().setInputCol("Features").setOutputCol("FeatureVector")
+    val wordsDataArray = arr2Vect.transform(wordsData).drop("Features")
+    wordsDataArray.show()
+    
     //Step4: extract the label(year) into a new column
     val lSlicer = ???
-
+    
+    /*
+    
     //Step5: convert type of the label from vector to double (use our Vector2Double)
     val v2d = new Vector2DoubleUDF(???)
     ???
+		*/
+    /*
     //Step6: shift all labels by the value of minimum label such that the value of the smallest becomes 0 (use our DoubleUDF) 
     val lShifter = new DoubleUDF(???)
     ???
@@ -56,5 +65,7 @@ object Main {
 
     //Step11: drop all columns from the dataframe other than label and features
     ???
+    * */
+    
   }
 }
